@@ -139,6 +139,7 @@ INSTANCE_TYPE=${INSTANCE_TYPE:-"SA5.MEDIUM4"}
 - 输出：集群 ID、VPC ID、安全组 ID、子网 ID(primary,secondary)、TCR 仓库 URL、kubeconfig.yaml
 
 ![截屏2025-08-07 19.13.21.png](/tencent/api/attachments/s3/url?attachmentid=34014536)
+![这是个图片](images/Terraform基础设施搭建截图.png)
 
 #### 步骤2：镜像构建及推送
 ```

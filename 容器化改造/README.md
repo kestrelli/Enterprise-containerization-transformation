@@ -138,7 +138,6 @@ INSTANCE_TYPE=${INSTANCE_TYPE:-"SA5.MEDIUM4"}
 ```
 - 输出：集群 ID、VPC ID、安全组 ID、子网 ID(primary,secondary)、TCR 仓库 URL、kubeconfig.yaml
 
-![截屏2025-08-07 19.13.21.png](/tencent/api/attachments/s3/url?attachmentid=34014536)
 ![这是个图片](images/Terraform基础设施搭建截图.png)
 
 #### 步骤2：镜像构建及推送
@@ -153,7 +152,7 @@ read -p "输入TCR镜像版本（IMAGE_TAG）: " IMAGE_TAG
 ```
 - 输出：镜像地址、TCR仓库URL、TCR命名空间、镜像版本
 
-![Clipboard_Screenshot_1754623939.png](/tencent/api/attachments/s3/url?attachmentid=34031487)
+![这是个图片](images/镜像构建及推送.png)
 #### 步骤3：服务部署与暴露
 ```
 # 执行 deploy_services.sh
@@ -166,7 +165,7 @@ read -p "输入集群命名空间（K8S_NAMESPACE）: " K8S_NAMESPACE
 ```
 - 输出：工作负载、4层服务、7层服务
 
-![Clipboard_Screenshot_1754626442.png](/tencent/api/attachments/s3/url?attachmentid=34033719)
+![这是个图片](images/服务部署与暴露.png)
 #### 步骤4：日志采集
 ```
 # 执行 deploy_logging.sh
@@ -175,7 +174,7 @@ read -p "输入集群命名空间（K8S_NAMESPACE）: " K8S_NAMESPACE
 ```
 - 输出：标准输出日志、容器文件日志
 
-![Clipboard_Screenshot_1754577361.png](/tencent/api/attachments/s3/url?attachmentid=34021905)
+![这是个图片](images/日志采集.png)
 #### 步骤5：弹性伸缩配置
 ```
 # 执行 deploy_autoscale.sh
@@ -184,7 +183,7 @@ read -p "输入集群命名空间（K8S_NAMESPACE）: " K8S_NAMESPACE
 ```
 - 输出：HPA状态、HPC状态
 
-![Clipboard_Screenshot_1754643001.png](/tencent/api/attachments/s3/url?attachmentid=34048198)
+![这是个图片](images/弹性伸缩配置.png)
 
 
 
@@ -495,23 +494,23 @@ EOF
    -  集群及相关资源部署完成
 	- TCR 镜像仓库构建成功
 
-![截屏2025-08-07 19.13.21.png](/tencent/api/attachments/s3/url?attachmentid=34014536)
+![这是个图片](images/Terraform基础设施搭建截图.png)
 2. ​**应用层**​：
    - 访问 `http://$LAYER4_IP:8080` 访问网址成功
    - 访问 `http://$INGRESS_IP` 访问网址成功
 	-  日志采集-业务日志开启可见容器文件路径及容器标准输出
 
-![Clipboard_Screenshot_1754566313.png](/tencent/api/attachments/s3/url?attachmentid=34015730)
-![Clipboard_Screenshot_1754566348.png](/tencent/api/attachments/s3/url?attachmentid=34015757)
-![Clipboard_Screenshot_1754641882.png](/tencent/api/attachments/s3/url?attachmentid=34046433)
+![这是个图片](images/四层访问.png)
+![这是个图片](images/七层访问.png)
+![这是个图片](images/文件日志采集.png)
 3. ​**弹性能力**​：
    - HPA CPU利用率达到范围触发策略变化
    - HPC 定时触发副本数变化
 
-![Clipboard_Screenshot_1754642908.png](/tencent/api/attachments/s3/url?attachmentid=34048101)
-![Clipboard_Screenshot_1754566514.png](/tencent/api/attachments/s3/url?attachmentid=34015860)
-![Clipboard_Screenshot_1754642876.png](/tencent/api/attachments/s3/url?attachmentid=34048069)
- ![截屏2025-08-06 20.47.33.png](/tencent/api/attachments/s3/url?attachmentid=33978396)
+![这是个图片](images/HPA（1）.png)
+![这是个图片](images/HPA（2）.png)
+![这是个图片](images/HPC（1）.png)
+![这是个图片](images/HPC（2）.png)
 
 ### 项目结构
 ```

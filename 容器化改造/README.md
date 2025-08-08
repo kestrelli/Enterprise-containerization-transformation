@@ -145,10 +145,13 @@ INSTANCE_TYPE=${INSTANCE_TYPE:-"SA5.MEDIUM4"}
 # 执行 deploy_images.sh
 ./deploy_images.sh
 read -p "输入TCR仓库URL（TCR_REGISTRY_URL）: " TCR_REGISTRY_URL #步骤1生成的TCR仓库URL
+read -p "输入TCR仓库URL（TCR_REGISTRY_URL）: " TCR_REGISTRY_URL
 read -p "输入TCR凭证服务级用户名（TCR_USERNAME）: " TCR_USERNAME
 read -s -p "输入TCR凭证服务级密码（TCR_PASSWORD）: " TCR_PASSWORD
-read -p "输入TCR命名空间（TCR_NAMESPACE）: " TCR_NAMESPACE
-read -p "输入TCR镜像版本（IMAGE_TAG）: " IMAGE_TAG
+read -p "输入TCR命名空间（默认: default）: " TCR_NAMESPACE
+TCR_NAMESPACE=${TCR_NAMESPACE:-"default"}  
+read -p "输入TCR镜像版本（默认: v3.5.0）: " IMAGE_TAG
+IMAGE_TAG=${IMAGE_TAG:-"v3.5.0"}
 ```
 - 输出：镜像地址、TCR仓库URL、TCR命名空间、镜像版本
 
@@ -157,11 +160,10 @@ read -p "输入TCR镜像版本（IMAGE_TAG）: " IMAGE_TAG
 ```
 # 执行 deploy_services.sh
 ./deploy_services.sh
-read -p "输入完整的镜像地址（FULL_IMAGE_NAME）: " FULL_IMAGE_NAME
+read -p "输入TCR镜像完整地址（TCR_IMAGE_FQIN）: " TCR_IMAGE_FQIN
 read -p "输入TCR凭证服务级用户名（TCR_USERNAME）: " TCR_USERNAME
 read -s -p "输入TCR凭证服务级密码（TCR_PASSWORD）: " TCR_PASSWORD
 read -p "输入TCR仓库URL（TCR_REGISTRY_URL）: " TCR_REGISTRY_URL
-read -p "输入集群命名空间（K8S_NAMESPACE）: " K8S_NAMESPACE
 ```
 - 输出：工作负载、4层服务、7层服务
 
@@ -170,7 +172,6 @@ read -p "输入集群命名空间（K8S_NAMESPACE）: " K8S_NAMESPACE
 ```
 # 执行 deploy_logging.sh
 ./deploy_logging.sh
-read -p "输入集群命名空间（K8S_NAMESPACE）: " K8S_NAMESPACE
 ```
 - 输出：标准输出日志、容器文件日志
 

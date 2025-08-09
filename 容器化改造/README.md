@@ -180,7 +180,6 @@ read -p "输入TCR仓库URL（TCR_REGISTRY_URL）: " TCR_REGISTRY_URL
 ```
 # 执行 deploy_autoscale.sh
 ./deploy_autoscale.sh
-read -p "输入集群命名空间（K8S_NAMESPACE）: " K8S_NAMESPACE
 ```
 - 输出：HPA状态、HPC状态
 
@@ -459,6 +458,7 @@ spec:
       target:
         type: Utilization
         averageUtilization: 65
+EOF
 ```
 ##### **HPC 配置​**:
 ```

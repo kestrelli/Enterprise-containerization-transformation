@@ -75,15 +75,6 @@ resource "tencentcloud_security_group_rule_set" "rules" {
     protocol    = "ALL"
     description = "Node-to-Node Communication"
   }
-  
-  # 健康检查
-  ingress {
-    action      = "ACCEPT"
-    cidr_block  = "0.0.0.0/0"
-    protocol    = "TCP"
-    port        = "10250-10260"
-    description = "Kubelet Health Checks"
-  }
   egress {
     action      = "ACCEPT"
     cidr_block  = "0.0.0.0/0"

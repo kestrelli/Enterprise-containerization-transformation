@@ -34,8 +34,8 @@ resource "tencentcloud_kubernetes_cluster_endpoint" "cluster_endpoint" {
   
   # 确保在节点池创建后启用
   depends_on = [
-    tencentcloud_kubernetes_native_node_pool.native_nodepool-nj1,  # 使用新名称
-    tencentcloud_kubernetes_native_node_pool.native_nodepool-nj3,  # 使用新名称
+    tencentcloud_kubernetes_native_node_pool.native_nodepool-nj1, 
+    tencentcloud_kubernetes_native_node_pool.native_nodepool-nj3,  
     tencentcloud_kubernetes_serverless_node_pool.super_nodepool
   ]
 }
@@ -78,8 +78,8 @@ resource "tencentcloud_kubernetes_native_node_pool" "native_nodepool-nj1"  {
       auto_format_and_mount = true
       disk_type             = "CLOUD_BSSD"
       disk_size             = 100
-      file_system           = "xfs"
-      mount_target          = "/var/lib/containerd"
+      file_system           = "ext4"
+      mount_target          = "/var/lib/container"
     }
   }
   lifecycle {
@@ -138,8 +138,8 @@ resource "tencentcloud_kubernetes_native_node_pool" "native_nodepool-nj3"  {
       auto_format_and_mount = true
       disk_type             = "CLOUD_BSSD"
       disk_size             = 100
-      file_system           = "xfs"
-      mount_target          = "/var/lib/containerd"
+      file_system           = "ext4"
+      mount_target          = "/var/lib/container"
     }
   }
   lifecycle {

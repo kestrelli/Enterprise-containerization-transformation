@@ -34,8 +34,7 @@ terraform apply -auto-approve \
   -var="vpc_cidr=$VPC_CIDR" \
   -var="cluster_version=$CLUSTER_VERSION" \
   -var="service_cidr=$SERVICE_CIDR" \
-  -var="instance_type=$INSTANCE_TYPE" \
-  -var="tke_addon_version=$TKE_ADDON_VERSION"
+  -var="instance_type=$INSTANCE_TYPE" 
 
 # 生成kubeconfig文件
 echo "=== 生成高可用集群kubeconfig文件 ==="

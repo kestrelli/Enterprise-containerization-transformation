@@ -3,8 +3,9 @@
 传统应用部署面临资源利用率低、扩缩容缓慢、运维复杂等挑战。容器化改造通过 Kubernetes 标准化管理，实现：
 - ​**资源弹性**​：按需伸缩，降低闲置成本
 - ​**高可用保障**​：多可用区部署，避免单点故障
-### 实践意义：
-聚焦业务系统容器化全流程实践，深度验证TKE原生节点与超级节点的核心能力，沉淀可复用的技术经验与最佳实践。
+
+### 实践意义
+聚焦业务系统容器化全流程实践，深度体验TKE原生节点与超级节点的核心能力，沉淀可复用的技术经验与最佳实践。
 为后续客户业务拓展提供强有力的产品能力支撑与落地参考。
 
 ### 项目核心价值
@@ -20,14 +21,14 @@
 graph TD
     %% 主框架
     A[容器化改造]
-    A --> B[Terraform基础设施部署]
+    A --> B[容器基础设施部署]
     A --> C[镜像构建与推送]
     A --> D[服务部署与暴露]
     A --> E[日志采集配置]
     A --> F[弹性伸缩配置]
     
     %% 基础设施部署
-    subgraph B[Terraform基础设施部署]
+    subgraph B[容器基础设施部署]
         B1[创建VPC/子网/安全组配置]
         B2[配置TKE集群]
         B3[部署TCR仓库]
@@ -121,7 +122,7 @@ graph LR
 
 ### 快速开始
 
-#### 步骤1：Terraform基础设施搭建
+#### 步骤1：容器基础设施搭建
 ```
 # 执行 deploy_infra.sh
 ./deploy_infra.sh
@@ -136,7 +137,10 @@ SERVICE_CIDR=${SERVICE_CIDR:-"10.200.0.0/22"}
 read -p "请输入节点实例类型（默认SA5.MEDIUM4）: " INSTANCE_TYPE
 INSTANCE_TYPE=${INSTANCE_TYPE:-"SA5.MEDIUM4"}
 ```
-- 输出：集群 ID、VPC ID、安全组 ID、子网 ID(primary,secondary)、TCR 仓库 URL、kubeconfig.yaml
+- 验证：  
+   - `terraform output` 显示 VPC/子网状态正常且输出ID
+   -  集群及相关资源部署完成
+   - TCR 镜像仓库构建成功
 
 ![这是个图片](images/Terraform基础设施搭建截图.png)
 
@@ -153,9 +157,10 @@ TCR_NAMESPACE=${TCR_NAMESPACE:-"default"}
 read -p "输入TCR镜像版本（默认: v3.5.0）: " IMAGE_TAG
 IMAGE_TAG=${IMAGE_TAG:-"v3.5.0"}
 ```
-- 输出：镜像地址、TCR仓库URL、TCR命名空间、镜像版本
+- 验证：镜像地址、TCR仓库URL、TCR命名空间、镜像版本
 
 ![这是个图片](images/镜像构建及推送.png)
+
 #### 步骤3：服务部署与暴露
 ```
 # 执行 deploy_services.sh
@@ -165,25 +170,36 @@ read -p "输入TCR凭证服务级用户名（TCR_USERNAME）: " TCR_USERNAME
 read -s -p "输入TCR凭证服务级密码（TCR_PASSWORD）: " TCR_PASSWORD
 read -p "输入TCR仓库URL（TCR_REGISTRY_URL）: " TCR_REGISTRY_URL
 ```
-- 输出：工作负载、4层服务、7层服务
+- 验证：工作负载、4层服务地址、7层服务地址
 
 ![这是个图片](images/服务部署与暴露.png)
+- 访问 `http://$LAYER4_IP:8080` 访问网址成功
+![这是个图片](images/四层访问.png)
+- 访问 `http://$INGRESS_IP` 访问网址成功
+![这是个图片](images/七层访问.png)
 #### 步骤4：日志采集
 ```
 # 执行 deploy_logging.sh
 ./deploy_logging.sh
 ```
-- 输出：标准输出日志、容器文件日志
+- 验证：日志采集部署
 
 ![这是个图片](images/日志采集.png)
+- 日志采集-业务日志：容器文件路径、容器标准输出
+![这是个图片](images/文件日志采集.png)
 #### 步骤5：弹性伸缩配置
 ```
 # 执行 deploy_autoscale.sh
 ./deploy_autoscale.sh
 ```
-- 输出：HPA状态、HPC状态
-
+- 验证：HPA状态、HPC状态
 ![这是个图片](images/弹性伸缩配置.png)
+- HPA CPU利用率达到范围触发策略变化
+![这是个图片](images/HPA（1）.png)
+![这是个图片](images/HPA（2）.png)
+- HPC 定时触发副本数变化
+![这是个图片](images/HPC（1）.png)
+![这是个图片](images/HPC（2）.png)
 
 
 
@@ -241,8 +257,8 @@ variable "subnets" {
       auto_format_and_mount = true
       disk_type             = "CLOUD_BSSD"
       disk_size             = 100
-      file_system           = "xfs"
-      mount_target          = "/var/lib/containerd"
+      file_system           = "ext4"
+      mount_target          = "/var/lib/container"
     }
   }
 
@@ -272,8 +288,8 @@ variable "subnets" {
       auto_format_and_mount = true
       disk_type             = "CLOUD_BSSD"
       disk_size             = 100
-      file_system           = "xfs"
-      mount_target          = "/var/lib/containerd"
+      file_system           = "ext4"
+      mount_target          = "/var/lib/container"
     }
   }
   ```
@@ -302,7 +318,8 @@ variable "subnets" {
     ]
   }
   ```
-  #### 配置3：四层/七层访问入口
+  
+#### 配置3：四层/七层访问入口
 
 ##### ​**四层访问​**:
 ```
@@ -368,6 +385,7 @@ EOF
 ```
 
 #### 配置4：日志采集
+
 ##### **标准输出日志采集​**:
 ```
 ### ===== 配置标准输出日志采集 =====
@@ -418,10 +436,10 @@ spec:
     logType: fullregex_log  # 完全正则格式
 EOF
 log_success "文件日志规则已配置"
-
-log_success "日志收集配置完成!"
 ```
+
 #### 配置5：弹性伸缩
+
 ##### **HPA 配置​**:
 ```
 ### ===== 配置HPA水平伸缩 =====
@@ -488,30 +506,6 @@ spec:
 EOF
 ```
 
-### 验证标准
-
-1. ​**基础设施层**​：
-   - `terraform output` 显示 VPC/子网状态正常且输出ID
-   -  集群及相关资源部署完成
-	- TCR 镜像仓库构建成功
-
-![这是个图片](images/Terraform基础设施搭建截图.png)
-2. ​**应用层**​：
-   - 访问 `http://$LAYER4_IP:8080` 访问网址成功
-   - 访问 `http://$INGRESS_IP` 访问网址成功
-	-  日志采集-业务日志开启可见容器文件路径及容器标准输出
-
-![这是个图片](images/四层访问.png)
-![这是个图片](images/七层访问.png)
-![这是个图片](images/文件日志采集.png)
-3. ​**弹性能力**​：
-   - HPA CPU利用率达到范围触发策略变化
-   - HPC 定时触发副本数变化
-
-![这是个图片](images/HPA（1）.png)
-![这是个图片](images/HPA（2）.png)
-![这是个图片](images/HPC（1）.png)
-![这是个图片](images/HPC（2）.png)
 
 ### 项目结构
 ```
@@ -523,7 +517,7 @@ containerization-transformation/
         └── cluster.tf          # 集群模块资源
         └── tcr.tf              # 镜像模块资源
         └── providers.tf        # 腾讯云提供者
-	    └── variables.tf        # 定义变量传递
+	└── variables.tf        # 定义变量传递
 │       └── output.tf           # 资源输出定义
 ├── images/                 # 镜像构建及推送
 │   ├── deploy_images.sh    # 主脚本（镜像构建/推送）

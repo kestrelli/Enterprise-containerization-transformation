@@ -223,12 +223,13 @@ read -p "输入TCR仓库URL（TCR_REGISTRY_URL）: " TCR_REGISTRY_URL
 日志规则2: petclinic-log-files (容器文件路径)
 ```
 ![这是个图片](images/日志采集.png)
-- 在腾讯云控制台中可以查看到两条日志采集规则配置：
 
+- 在腾讯云控制台中可以查看到两条日志采集规则配置：
 |规则名称|类型|提取模式
 |:-:|:-:|:-:|:-:|
 |`petclinic-log-stdout`|容器标准输出|单行文本|
 |`petclinic-log-files`|容器文件路径|单行-完全正则
+
 ![这是个图片](images/文件日志采集.png)
 #### 步骤5：弹性伸缩配置
 ```

@@ -15,7 +15,7 @@
 3. ​**一键式运维**​：日志采集 + 自动伸缩 + 定时伸缩
 4. ​**安全合规**​：私有镜像仓库（TCR） + 内网访问 + 精细化权限控制
 
-### 部署流程图
+### 部署架构全景
 
 ```mermaid
 graph TD
@@ -88,7 +88,7 @@ graph TD
     class F1,F1a,F1b,F1c,F2,F2a,F2b,F2c scaling
 ```
 
-### 业务访问链路流程图
+### 业务访问链路设计
 
 ```mermaid
 graph LR
@@ -106,7 +106,6 @@ graph LR
     linkStyle 0 stroke:#888,stroke-width:2px;
     linkStyle 1 stroke:#722ed1,stroke-width:2px;
 ```
-`
 ### 前提条件
 
 1. ​**腾讯云账号**​：子账号需 `QcloudTKEAccess` 权限
@@ -124,80 +123,134 @@ graph LR
 
 #### 步骤1：容器基础设施搭建
 ```
-# 执行 deploy_infra.sh
+# 执行基础设施部署脚本
 ./deploy_infra.sh
-read -p "请输入区域（默认ap-nanjing）: " REGION
+
+# 输入必要参数（使用默认值可直接回车）
+read -p "区域（默认ap-nanjing）: " REGION
 REGION=${REGION:-"ap-nanjing"}
-read -p "请输入VPC CIDR（默认172.18.0.0/16）: " VPC_CIDR
+read -p "VPC CIDR（默认172.18.0.0/16）: " VPC_CIDR
 VPC_CIDR=${VPC_CIDR:-"172.18.0.0/16"}
-read -p "请输入Kubernetes版本（默认1.32.2）: " CLUSTER_VERSION
+read -p "Kubernetes版本（默认1.32.2）: " CLUSTER_VERSION
 CLUSTER_VERSION=${CLUSTER_VERSION:-"1.32.2"}
-read -p "请输入服务CIDR（默认10.200.0.0/22）: " SERVICE_CIDR
+read -p "服务CIDR（默认10.200.0.0/22）: " SERVICE_CIDR
 SERVICE_CIDR=${SERVICE_CIDR:-"10.200.0.0/22"}
-read -p "请输入节点实例类型（默认SA5.MEDIUM4）: " INSTANCE_TYPE
+read -p "节点实例类型（默认SA5.MEDIUM4）: " INSTANCE_TYPE
 INSTANCE_TYPE=${INSTANCE_TYPE:-"SA5.MEDIUM4"}
 ```
-- 验证：  
-   - `terraform output` 显示 VPC/子网状态正常且输出ID
-   -  集群及相关资源部署完成
-   - TCR 镜像仓库构建成功
+- 预期输出结果​：
+```
+Outputs:
+
+cluster_id = "cls-fd8ac5gw"
+security_group_id = "sg-rnns31d0"
+subnet_primary_id = "subnet-d0vg9406"
+subnet_secondary_id = "subnet-92e7nex0"
+suffix = "gp8c80r3"
+tcr_registry_url = "tcr-kestrelli-gp8c80r3.tencentcloudcr.com"
+vpc_id = "vpc-ksny35r1"
+
+=== 高可用基础设施创建完成 ===
+随机后缀：gp8c80r3
+VPC ID: vpc-ksny35r1
+安全组 ID: sg-rnns31d0
+子网 ID:
+  primary: subnet-d0vg9406
+  secondary: subnet-92e7nex0
+TCR 仓库 URL: tcr-kestrelli-gp8c80r3.tencentcloudcr.com
+集群 ID: cls-fd8ac5gw
+kubeconfig 文件已生成：kubeconfig.yaml
+```
 
 ![这是个图片](images/Terraform基础设施搭建截图.png)
 
 #### 步骤2：镜像构建及推送
 ```
-# 执行 deploy_images.sh
+# 执行部署脚本并输入必要参数
 ./deploy_images.sh
 read -p "输入TCR仓库URL（TCR_REGISTRY_URL）: " TCR_REGISTRY_URL #步骤1生成的TCR仓库URL
-read -p "输入TCR仓库URL（TCR_REGISTRY_URL）: " TCR_REGISTRY_URL
-read -p "输入TCR凭证服务级用户名（TCR_USERNAME）: " TCR_USERNAME
-read -s -p "输入TCR凭证服务级密码（TCR_PASSWORD）: " TCR_PASSWORD
-read -p "输入TCR命名空间（默认: default）: " TCR_NAMESPACE
+read -p "输入TCR凭证服务级用户名: " TCR_USERNAME
+read -s -p "输入TCR凭证服务级密码: " TCR_PASSWORD
+read -p "输入TCR命名空间（默认default）: " TCR_NAMESPACE
 TCR_NAMESPACE=${TCR_NAMESPACE:-"default"}  
-read -p "输入TCR镜像版本（默认: v3.5.0）: " IMAGE_TAG
+read -p "输入镜像版本（默认v3.5.0）: " IMAGE_TAG
 IMAGE_TAG=${IMAGE_TAG:-"v3.5.0"}
 ```
-- 验证：镜像地址、TCR仓库URL、TCR命名空间、镜像版本
+- 预期输出结果​：
+```
+[√] 镜像构建和推送完成!
+================================
+镜像地址: tcr-kestrelli-gp8c80r3.tencentcloudcr.com/default/petclinic:v3.5.0
+TCR仓库URL: tcr-kestrelli-gp8c80r3.tencentcloudcr.com
+TCR命名空间: default
+镜像版本: v3.5.0
+```
 
 ![这是个图片](images/镜像构建及推送.png)
 
 #### 步骤3：服务部署与暴露
 ```
-# 执行 deploy_services.sh
+# 执行服务部署脚本
 ./deploy_services.sh
 read -p "输入TCR镜像完整地址（TCR_IMAGE_FQIN）: " TCR_IMAGE_FQIN
 read -p "输入TCR凭证服务级用户名（TCR_USERNAME）: " TCR_USERNAME
 read -s -p "输入TCR凭证服务级密码（TCR_PASSWORD）: " TCR_PASSWORD
 read -p "输入TCR仓库URL（TCR_REGISTRY_URL）: " TCR_REGISTRY_URL
 ```
-- 验证：工作负载、4层服务地址、7层服务地址
-
+- 预期输出结果​：
+```
+[√] 服务部署与暴露配置全部完成!
+================================
+工作负载状态: 3个副本可用
+4层服务地址: http://1.13.10.227:8080
+7层服务地址: http://1.13.117.179
+```
 ![这是个图片](images/服务部署与暴露.png)
-- 访问 `http://$LAYER4_IP:8080` 访问网址成功
+- 4层访问验证​：访问http://1.13.10.227:8080， 成功访问部署在TKE集群上的Spring PetClinic应用，浏览器完整显示应用首页
 ![这是个图片](images/四层访问.png)
-- 访问 `http://$INGRESS_IP` 访问网址成功
+- 7层访问验证​：访问http://1.13.117.179， 成功访问部署在TKE集群上的Spring PetClinic应用，浏览器完整显示应用首页
 ![这是个图片](images/七层访问.png)
 #### 步骤4：日志采集
 ```
-# 执行 deploy_logging.sh
+# 启动日志采集配置
 ./deploy_logging.sh
 ```
-- 验证：日志采集部署
-
+- 预期输出结果​：
+```
+[√] 日志采集配置全部完成!
+================================
+日志规则1: petclinic-log-stdout (容器标准输出)
+日志规则2: petclinic-log-files (容器文件路径)
+```
 ![这是个图片](images/日志采集.png)
-- 日志采集-业务日志：容器文件路径、容器标准输出
+- 在腾讯云控制台中可以查看到两条日志采集规则配置：
+
+|规则名称|类型|提取模式
+|:-:|:-:|:-:|:-:|
+|`petclinic-log-stdout`|容器标准输出|单行文本|
+|`petclinic-log-files`|容器文件路径|单行-完全正则
 ![这是个图片](images/文件日志采集.png)
 #### 步骤5：弹性伸缩配置
 ```
-# 执行 deploy_autoscale.sh
+# 启动弹性伸缩配置
 ./deploy_autoscale.sh
 ```
-- 验证：HPA状态、HPC状态
+- 预期输出结果​：
+```
+[√] 弹性伸缩配置全部完成!
+================================
+HPA策略：petclinic-hpa (最小3副本，最大20副本)
+HPC策略：petclinic-hpc (3条定时策略)
+```
 ![这是个图片](images/弹性伸缩配置.png)
-- HPA CPU利用率达到范围触发策略变化
+- HPA 配置状态（在腾讯云控制台可查看验证效果）
+  - 触发条件​：CPU利用率达到65%后自动扩缩容
+  - 副本范围​：始终保持在3-20个副本之间
 ![这是个图片](images/HPA（1）.png)
 ![这是个图片](images/HPA（2）.png)
-- HPC 定时触发副本数变化
+- HPC 定时策略（在腾讯云控制台可查看验证效果）
+  - 工作日策略​：早8点扩容至10副本，晚18点缩容至3副本
+  - 周末策略​：周五23:30缩容至2副本
 ![这是个图片](images/HPC（1）.png)
 ![这是个图片](images/HPC（2）.png)
 
@@ -323,7 +376,6 @@ variable "subnets" {
 
 ##### ​**四层访问​**:
 ```
-cat <<EOF | kubectl apply -f -
 apiVersion: v1
 kind: Service
 metadata:
@@ -340,11 +392,9 @@ spec:
   - protocol: TCP
     port: 8080
     targetPort: 8080
-EOF
 ```
 ##### **七层访问​**:
 ```
-cat <<EOF | kubectl apply -f -
 apiVersion: v1
 kind: Service
 metadata:
@@ -359,9 +409,7 @@ spec:
     protocol: TCP
     port: 80
     targetPort: 8080
-EOF
 
-cat <<EOF | kubectl apply -f -
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -381,7 +429,6 @@ spec:
             name: petclinic-service-clusterip
             port:
               number: 80
-EOF
 ```
 
 #### 配置4：日志采集
@@ -389,7 +436,6 @@ EOF
 ##### **标准输出日志采集​**:
 ```
 ### ===== 配置标准输出日志采集 =====
-kubectl apply -f - <<EOF
 apiVersion: cls.cloud.tencent.com/v1
 kind: LogConfig
 metadata:
@@ -407,13 +453,10 @@ spec:
     logsetName: "TC-log"  # 指定日志集名称（自动创建）
     topicName: "petclinic-stdout-topic"  # 指定日志主题名称（自动创建）
     logType: minimalist_log
-EOF
-log_success "标准输出日志规则已配置"
 ```
 ##### **容器文件日志采集​**:
 ```
 ### ===== 配置容器文件日志采集 =====
-kubectl apply -f - <<EOF
 apiVersion: cls.cloud.tencent.com/v1
 kind: LogConfig
 metadata:
@@ -434,8 +477,6 @@ spec:
     logsetName: "TC-log"  # 使用同一个日志集
     topicName: "petclinic-file-topic"  # 不同的主题
     logType: fullregex_log  # 完全正则格式
-EOF
-log_success "文件日志规则已配置"
 ```
 
 #### 配置5：弹性伸缩
@@ -443,7 +484,6 @@ log_success "文件日志规则已配置"
 ##### **HPA 配置​**:
 ```
 ### ===== 配置HPA水平伸缩 =====
-cat <<EOF | kubectl apply -f -
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
@@ -476,12 +516,10 @@ spec:
       target:
         type: Utilization
         averageUtilization: 65
-EOF
 ```
 ##### **HPC 配置​**:
 ```
 ### ===== 配置HPC定时伸缩策略 =====
-cat <<EOF | kubectl apply -f -
 apiVersion: autoscaling.cloud.tencent.com/v1
 kind: HorizontalPodCronscaler 
 metadata:
@@ -503,7 +541,6 @@ spec:
   - name: weekend-scale-down
     schedule: "30 23 * * 5"    # 调整为周五晚上11:30，避免周六凌晨处理
     targetSize: 2
-EOF
 ```
 
 
@@ -517,7 +554,7 @@ containerization-transformation/
         └── cluster.tf          # 集群模块资源
         └── tcr.tf              # 镜像模块资源
         └── providers.tf        # 腾讯云提供者
-    	└── variables.tf        # 定义变量传递
+	└── variables.tf        # 定义变量传递
 │       └── output.tf           # 资源输出定义
 ├── images/                 # 镜像构建及推送
 │   ├── deploy_images.sh    # 主脚本（镜像构建/推送）

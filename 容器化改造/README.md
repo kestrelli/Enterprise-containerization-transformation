@@ -517,7 +517,7 @@ containerization-transformation/
         └── cluster.tf          # 集群模块资源
         └── tcr.tf              # 镜像模块资源
         └── providers.tf        # 腾讯云提供者
-	└── variables.tf        # 定义变量传递
+    	└── variables.tf        # 定义变量传递
 │       └── output.tf           # 资源输出定义
 ├── images/                 # 镜像构建及推送
 │   ├── deploy_images.sh    # 主脚本（镜像构建/推送）

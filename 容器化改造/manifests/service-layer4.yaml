@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: petclinic-service-layer4
+  namespace: petclinic
+  annotations:
+    service.cloud.tencent.com/direct-access: "true"
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  selector:
+    app: petclinic
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080

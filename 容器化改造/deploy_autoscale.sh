@@ -1,4 +1,3 @@
-
 #!/bin/bash
 set -euo pipefail
 
@@ -12,8 +11,7 @@ log_error() { echo -e "\033[1;31m[✗] $1\033[0m"; exit 1; }
 K8S_NAMESPACE="petclinic"
 log_info "使用指定命名空间: $K8S_NAMESPACE"
 
-
-### ===== 使用默认的kubeconfig路径 =====
+### ===== 核心配置 =====
 KUBECONFIG_FILE="$HOME/.kube/config"
 log_info "使用默认kubeconfig文件: $KUBECONFIG_FILE"
 
@@ -24,40 +22,9 @@ export KUBECONFIG="$KUBECONFIG_FILE"
 
 log_info "开始配置弹性伸缩策略..."
 log_info "配置HPA自动扩容策略..."
-cat <<EOF | kubectl apply -f -
-apiVersion: autoscaling/v2
-kind: HorizontalPodAutoscaler
-metadata:
-  name: petclinic-hpa
-  namespace: $K8S_NAMESPACE
-spec:
-  behavior:
-    scaleDown:
-      stabilizationWindowSeconds: 300
-      policies:
-      - type: Percent
-        value: 10
-        periodSeconds: 60
-    scaleUp:
-      stabilizationWindowSeconds: 60
-      policies:
-      - type: Percent
-        value: 100
-        periodSeconds: 60
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: petclinic
-  minReplicas: 3
-  maxReplicas: 20
-  metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 65
-EOF
+# 替换命名空间变量
+export K8S_NAMESPACE
+envsubst < manifests/hpa.yaml | kubectl apply -f - || log_error "HPA配置失败"
 log_success "HPA配置完成"
 
 log_info "验证HPA状态..."
@@ -68,29 +35,8 @@ else
 fi
 
 log_info "配置HPC定时伸缩策略..."
-cat <<EOF | kubectl apply -f -
-apiVersion: autoscaling.cloud.tencent.com/v1
-kind: HorizontalPodCronscaler 
-metadata:
-  name: petclinic-hpc
-  namespace: $K8S_NAMESPACE
-spec:
-  scaleTarget:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: petclinic
-    namespace: $K8S_NAMESPACE
-  crons:
-  - name: morning-scale-up
-    schedule: "2 8 * * 1-5"
-    targetSize: 10
-  - name: evening-scale-down
-    schedule: "2 18 * * 1-5"
-    targetSize: 3
-  - name: weekend-scale-down
-    schedule: "30 23 * * 5"
-    targetSize: 2
-EOF
+# 替换命名空间变量
+envsubst < manifests/hpc.yaml | kubectl apply -f - || log_error "HPC配置失败"
 log_success "HPC配置完成"
 
 log_info "验证HPC状态..."

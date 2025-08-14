@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# 获取脚本所在目录作为工作目录
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR" || exit 1
+
 # 设置腾讯云凭证
 read -p "请输入腾讯云SecretId: " TENCENTCLOUD_SECRET_ID
 read -s -p "请输入腾讯云SecretKey: " TENCENTCLOUD_SECRET_KEY
@@ -16,6 +20,9 @@ read -p "请输入服务CIDR（默认10.200.0.0/22）: " SERVICE_CIDR
 SERVICE_CIDR=${SERVICE_CIDR:-"10.200.0.0/22"}
 read -p "请输入节点实例类型（默认SA5.MEDIUM4）: " INSTANCE_TYPE
 INSTANCE_TYPE=${INSTANCE_TYPE:-"SA5.MEDIUM4"}
+
+# 在工作目录执行所有操作
+echo "=== 在目录 $SCRIPT_DIR 执行操作 ==="
 
 # 清理环境
 echo "=== 清理旧环境 ==="

@@ -125,18 +125,6 @@ graph LR
 ```
 # 执行基础设施部署脚本
 ./infra/deploy_infra.sh
-
-# 输入必要参数（使用默认值可直接回车）
-read -p "区域（默认ap-nanjing）: " REGION
-REGION=${REGION:-"ap-nanjing"}
-read -p "VPC CIDR（默认172.18.0.0/16）: " VPC_CIDR
-VPC_CIDR=${VPC_CIDR:-"172.18.0.0/16"}
-read -p "Kubernetes版本（默认1.32.2）: " CLUSTER_VERSION
-CLUSTER_VERSION=${CLUSTER_VERSION:-"1.32.2"}
-read -p "服务CIDR（默认10.200.0.0/22）: " SERVICE_CIDR
-SERVICE_CIDR=${SERVICE_CIDR:-"10.200.0.0/22"}
-read -p "节点实例类型（默认SA5.MEDIUM4）: " INSTANCE_TYPE
-INSTANCE_TYPE=${INSTANCE_TYPE:-"SA5.MEDIUM4"}
 ```
 - 预期输出结果​：
 ```

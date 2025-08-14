@@ -8,7 +8,6 @@ log_warning() { echo -e "\033[1;33m[!] $1\033[0m"; }
 log_error() { echo -e "\033[1;31m[✗] $1\033[0m"; exit 1; }
 
 ### ===== 用户输入配置 =====
-# 镜像信息直接从构建脚本获取
 read -p "输入TCR镜像完整地址（TCR_IMAGE_FQIN）: " TCR_IMAGE_FQIN
 read -p "输入TCR凭证服务级用户名（TCR_USERNAME）: " TCR_USERNAME
 read -s -p "输入TCR凭证服务级密码（TCR_PASSWORD）: " TCR_PASSWORD
@@ -33,7 +32,7 @@ export KUBECONFIG="$KUBECONFIG_FILE"
 log_info "开始部署工作负载..."
 log_info "创建命名空间 $K8S_NAMESPACE..."
 if ! kubectl get namespace "$K8S_NAMESPACE" &>/dev/null; then
-    kubectl create namespace "$K8S_NAMESPACE" || log_error "命名空间创建失败"
+    kubectl apply -f manifests/namespace.yaml || log_error "命名空间创建失败"
     log_success "命名空间创建完成"
 else
     log_success "命名空间已存在"
@@ -48,64 +47,22 @@ kubectl create secret docker-registry tcr-internal-credentials \
 log_success "镜像拉取Secret配置完成"
 
 log_info "创建Deployment资源..."
-cat <<EOF | kubectl apply -f -
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: petclinic
-  namespace: $K8S_NAMESPACE
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: petclinic
-  template:
-    metadata:
-      labels:
-        app: petclinic
-    spec:
-      imagePullSecrets:
-      - name: tcr-internal-credentials
-      containers:
-      - name: petclinic
-        image: $TCR_IMAGE_FQIN
-        ports:
-        - containerPort: 8080
-        startupProbe:
-          httpGet:
-            path: /actuator/health
-            port: 8080
-          failureThreshold: 30
-          periodSeconds: 10
-EOF
+# 使用envsubst替换镜像地址变量
+export TCR_IMAGE_FQIN
+envsubst < manifests/deployment.yaml | kubectl apply -f - || log_error "Deployment创建失败"
 
 log_info "验证工作负载状态..."
 if kubectl rollout status deployment/petclinic -n "$K8S_NAMESPACE" --timeout=180s; then
     log_success "工作负载部署完成且运行正常"
 else
     log_warning "工作负载启动可能存在问题，请检查Pod状态"
+    kubectl get pods -n "$K8S_NAMESPACE" -l app=petclinic
+    kubectl describe deployment/petclinic -n "$K8S_NAMESPACE"
 fi
 
 # ==== 4层访问配置 ====
 log_info "开始配置4层访问服务..."
-cat <<EOF | kubectl apply -f -
-apiVersion: v1
-kind: Service
-metadata:
-  name: petclinic-service-layer4
-  namespace: $K8S_NAMESPACE
-  annotations:
-    service.cloud.tencent.com/direct-access: "true"
-spec:
-  type: LoadBalancer
-  externalTrafficPolicy: Local
-  selector:
-    app: petclinic
-  ports:
-  - protocol: TCP
-    port: 8080
-    targetPort: 8080
-EOF
+kubectl apply -f manifests/service-layer4.yaml || log_error "4层服务创建失败"
 log_success "4层服务配置完成"
 
 log_info "验证4层服务状态..."
@@ -127,45 +84,10 @@ fi
 # ==== 7层访问配置 ====
 log_info "开始配置7层访问服务..."
 log_info "创建ClusterIP服务..."
-cat <<EOF | kubectl apply -f -
-apiVersion: v1
-kind: Service
-metadata:
-  name: petclinic-service-clusterip
-  namespace: $K8S_NAMESPACE
-spec:
-  type: ClusterIP
-  selector:
-    app: petclinic
-  ports:
-  - name: http
-    protocol: TCP
-    port: 80
-    targetPort: 8080
-EOF
+kubectl apply -f manifests/service-clusterip.yaml || log_error "ClusterIP服务创建失败"
 
 log_info "创建Ingress资源..."
-cat <<EOF | kubectl apply -f -
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: petclinic-ingress
-  namespace: $K8S_NAMESPACE
-  annotations:
-    ingress.cloud.tencent.com/direct-access: "true"
-spec:
-  ingressClassName: qcloud
-  rules:
-  - http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: petclinic-service-clusterip
-            port:
-              number: 80
-EOF
+kubectl apply -f manifests/ingress.yaml || log_error "Ingress创建失败"
 log_success "7层Ingress配置完成"
 
 log_info "验证7层服务状态..."

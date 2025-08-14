@@ -1,0 +1,17 @@
+apiVersion: cls.cloud.tencent.com/v1
+kind: LogConfig
+metadata:
+  name: petclinic-log-stdout
+spec:
+  inputDetail:
+    type: container_stdout
+    containerStdout:
+      namespace: ${K8S_NAMESPACE}
+      workload:
+        - kind: Deployment
+          name: petclinic
+          namespace: ${K8S_NAMESPACE}
+  clsDetail:
+    logsetName: "TC-log"
+    topicName: "petclinic-stdout-topic"
+    logType: minimalist_log

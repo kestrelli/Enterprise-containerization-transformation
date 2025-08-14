@@ -124,7 +124,7 @@ graph LR
 #### 步骤1：容器基础设施搭建
 ```
 # 执行基础设施部署脚本
-./deploy_infra.sh
+./infra/deploy_infra.sh
 
 # 输入必要参数（使用默认值可直接回车）
 read -p "区域（默认ap-nanjing）: " REGION

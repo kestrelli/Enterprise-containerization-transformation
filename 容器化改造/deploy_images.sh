@@ -4,6 +4,7 @@ set -euo pipefail
 ### ===== 日志函数 =====
 log_info() { echo -e "\033[1;34m[i] $1\033[0m"; }
 log_success() { echo -e "\033[1;32m[✓] $1\033[0m"; }
+log_warning() { echo -e "\033[1;33m[!] $1\033[0m"; }
 log_error() { echo -e "\033[1;31m[✗] $1\033[0m"; exit 1; }
 
 ### ===== 用户输入配置 =====
@@ -22,7 +23,7 @@ log_info "TCR镜像全限定名: $TCR_IMAGE_FQIN"
 
 ### ===== 构建镜像 =====
 log_info "构建Docker镜像..."
-docker build -t "${TCR_IMAGE_FQIN}" . || log_error "镜像构建失败"
+docker build --network=host -t "${TCR_IMAGE_FQIN}" . || log_error "镜像构建失败"
 log_success "镜像构建完成: $TCR_IMAGE_FQIN"
 
 ### ===== 推送镜像 =====

@@ -18,25 +18,14 @@ echo
 K8S_NAMESPACE="petclinic"
 log_info "使用指定命名空间: $K8S_NAMESPACE"
 
-### ===== kubeconfig路径 =====
-KUBECONFIG_FILE="$HOME/.kube/config"
-log_info "使用kubeconfig文件: $KUBECONFIG_FILE"
-
 ### ===== Kubernetes 部署 =====
-export KUBECONFIG="$KUBECONFIG_FILE"
-
-[ ! -f "$KUBECONFIG_FILE" ] && log_error "kubeconfig 文件不存在"
+# 检查集群连接
 ! kubectl cluster-info &>/dev/null && log_error "kubectl 无法连接到集群"
 
 # ==== 工作负载部署 ====
 log_info "开始部署工作负载..."
 log_info "创建命名空间 $K8S_NAMESPACE..."
-if ! kubectl get namespace "$K8S_NAMESPACE" &>/dev/null; then
-    kubectl apply -f manifests/namespace.yaml || log_error "命名空间创建失败"
-    log_success "命名空间创建完成"
-else
-    log_success "命名空间已存在"
-fi
+kubectl apply -f manifests/namespace.yaml || log_warning "命名空间创建失败（可能已存在）"
 
 log_info "创建镜像拉取Secret..."
 kubectl create secret docker-registry tcr-internal-credentials \

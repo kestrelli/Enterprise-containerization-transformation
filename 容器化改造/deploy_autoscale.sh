@@ -11,13 +11,8 @@ log_error() { echo -e "\033[1;31m[✗] $1\033[0m"; exit 1; }
 K8S_NAMESPACE="petclinic"
 log_info "使用指定命名空间: $K8S_NAMESPACE"
 
-### ===== 核心配置 =====
-KUBECONFIG_FILE="$HOME/.kube/config"
-log_info "使用默认kubeconfig文件: $KUBECONFIG_FILE"
-
 ### ===== 配置弹性伸缩 =====
-export KUBECONFIG="$KUBECONFIG_FILE"
-[ ! -f "$KUBECONFIG_FILE" ] && log_error "kubeconfig 文件不存在"
+# 检查集群连接
 ! kubectl cluster-info &>/dev/null && log_error "kubectl 无法连接到集群"
 
 log_info "开始配置弹性伸缩策略..."

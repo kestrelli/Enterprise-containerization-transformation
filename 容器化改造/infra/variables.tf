@@ -48,15 +48,11 @@ variable "service_cidr" {
 
 variable "instance_type" {
   description = "节点实例类型"
-  default     = "SA2.MEDIUM4"
+  default     = "SA5.MEDIUM4"
 }
 variable "image_tag" {
   description = "Docker 镜像标签"
   default     = "latest"
-}
-variable "tke_addon_version" {
-  description = "TKE 附加组件版本"
-  default     = "1.0.7"
 }
 variable "cluster_id" {
   description = "TKE cluster id"

@@ -1,0 +1,81 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: logconfigs.cls.cloud.tencent.com
+spec:
+  group: cls.cloud.tencent.com
+  names:
+    kind: LogConfig
+    listKind: LogConfigList
+    plural: logconfigs
+    singular: logconfig
+  scope: Cluster
+  versions:
+  - name: v1
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              clsDetail:
+                type: object
+                properties:
+                  topicId: 
+                    type: string
+                  logsetName:
+                    type: string
+                  topicName:
+                    type: string
+                  logType:
+                    type: string
+                    enum: [minimalist_log, fullregex_log]
+              inputDetail:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    enum: [container_stdout, container_file]
+                  containerStdout:
+                    type: object
+                    properties:
+                      namespace:
+                        type: string
+                      workload:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            kind: 
+                              type: string
+                            name: 
+                              type: string
+                            namespace: 
+                              type: string
+                  containerFile:
+                    type: object
+                    properties:
+                      namespace:
+                        type: string
+                      container:
+                        type: string
+                      logPath: 
+                        type: string
+                      filePattern: 
+                        type: string
+                      workload:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            kind: 
+                              type: string
+                            name: 
+                              type: string
+                            namespace: 
+                              type: string
+                required: [type]
+        required: [spec]
+    served: true
+    storage: true

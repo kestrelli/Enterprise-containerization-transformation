@@ -154,15 +154,8 @@ kubeconfig 文件已生成：kubeconfig.yaml
 
 #### 步骤2：镜像构建及推送
 ```
-# 执行部署脚本并输入必要参数
-./deploy_images.sh
-read -p "输入TCR仓库URL（TCR_REGISTRY_URL）: " TCR_REGISTRY_URL #步骤1生成的TCR仓库URL
-read -p "输入TCR凭证服务级用户名: " TCR_USERNAME
-read -s -p "输入TCR凭证服务级密码: " TCR_PASSWORD
-read -p "输入TCR命名空间（默认default）: " TCR_NAMESPACE
-TCR_NAMESPACE=${TCR_NAMESPACE:-"default"}  
-read -p "输入镜像版本（默认v3.5.0）: " IMAGE_TAG
-IMAGE_TAG=${IMAGE_TAG:-"v3.5.0"}
+# 执行部署脚本
+./images/deploy_images.sh
 ```
 - 预期输出结果​：
 ```
@@ -179,11 +172,7 @@ TCR命名空间: default
 #### 步骤3：服务部署与暴露
 ```
 # 执行服务部署脚本
-./deploy_services.sh
-read -p "输入TCR镜像完整地址（TCR_IMAGE_FQIN）: " TCR_IMAGE_FQIN
-read -p "输入TCR凭证服务级用户名（TCR_USERNAME）: " TCR_USERNAME
-read -s -p "输入TCR凭证服务级密码（TCR_PASSWORD）: " TCR_PASSWORD
-read -p "输入TCR仓库URL（TCR_REGISTRY_URL）: " TCR_REGISTRY_URL
+./services/deploy_services.sh
 ```
 - 预期输出结果​：
 ```
@@ -201,7 +190,7 @@ read -p "输入TCR仓库URL（TCR_REGISTRY_URL）: " TCR_REGISTRY_URL
 #### 步骤4：日志采集
 ```
 # 启动日志采集配置
-./deploy_logging.sh
+./logging/deploy_logging.sh
 ```
 - 预期输出结果​：
 ```
@@ -222,7 +211,7 @@ read -p "输入TCR仓库URL（TCR_REGISTRY_URL）: " TCR_REGISTRY_URL
 #### 步骤5：弹性伸缩配置
 ```
 # 启动弹性伸缩配置
-./deploy_autoscale.sh
+./autoscale/deploy_autoscale.sh
 ```
 - 预期输出结果​：
 ```

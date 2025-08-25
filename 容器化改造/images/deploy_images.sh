@@ -1,6 +1,10 @@
 #!/bin/bash
 set -euo pipefail
 
+# 获取脚本所在目录作为工作目录
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR" || exit 1
+
 ### ===== 日志函数 =====
 log_info() { echo -e "\033[1;34m[i] $1\033[0m"; }
 log_success() { echo -e "\033[1;32m[✓] $1\033[0m"; }

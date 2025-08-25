@@ -539,24 +539,36 @@ containerization-transformation/
 ├── infra/                  # Terraform基础设施
 │   ├── deploy_infra.sh     # 主脚本（创建VPC/TKE/TCR/验证）
 │   ├── terraform/          # Terraform 模块
-        └── network.tf          # 网络模块资源
-        └── cluster.tf          # 集群模块资源
-        └── tcr.tf              # 镜像模块资源
-        └── providers.tf        # 腾讯云提供者
-	└── variables.tf        # 定义变量传递
-│       └── output.tf           # 资源输出定义
+│   │   ├── network.tf
+│   │   ├── cluster.tf
+│   │   ├── tcr.tf
+│   │   ├── providers.tf
+│   │   ├── variables.tf
+│   └── └── output.tf
 ├── images/                 # 镜像构建及推送
 │   ├── deploy_images.sh    # 主脚本（镜像构建/推送）
-│   ├── Dockerfile              # 应用容器化定义
+│   ├── Dockerfile          # 应用容器化定义
+│   └── settings.xml        # Maven镜像加速配置
 ├── services/               # 服务与暴露
 │   ├── deploy_services.sh  # 主脚本（服务/暴露/验证）
-│   └── k8s-manifests/          #K8s YAML 文件
+│   └── manifests/          # K8s YAML 文件（服务部署、暴露等）
+│       ├── namespace.yaml
+│       ├── deployment.yaml
+│       ├── service-clusterip.yaml
+│       ├── service-layer4.yaml
+│       └── ingress.yaml
 ├── logging/                # 日志采集
 │   ├── deploy_logging.sh   # 主脚本（标准输出日志/容器文件日志）
-│   └── k8s-manifests/          #K8s YAML 文件
+│   └── manifests/          # K8s YAML 文件（日志采集配置）
+│       ├── logconfig-crd.yaml
+│       ├── logconfig-stdout.yaml
+│       └── logconfig-files.yaml
 ├── autoscale/              # 弹性伸缩
 │   ├── deploy_autoscale.sh # 主脚本（HPA/HPC）
-│   └── k8s-manifests/          # K8s YAML 文件
-├── docs/                   # 文档
-│   └── README.md           # 本指南
+│   └── manifests/          # K8s YAML 文件（弹性伸缩配置）
+│       ├── hpa.yaml
+│       └── hpc.yaml
+└── docs/                   # 文档
+    └── README.md           # 本指南
+
 ```

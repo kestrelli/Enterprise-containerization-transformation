@@ -150,7 +150,7 @@ TCR 仓库 URL: tcr-kestrelli-gp8c80r3.tencentcloudcr.com
 kubeconfig 文件已生成：kubeconfig.yaml
 ```
 
-![这是个图片](images/Terraform基础设施搭建截图.png)
+![这是个图片](image/Terraform基础设施搭建截图.png)
 
 #### 步骤2：镜像构建及推送
 ```
@@ -174,7 +174,7 @@ TCR命名空间: default
 镜像版本: v3.5.0
 ```
 
-![这是个图片](images/镜像构建及推送.png)
+![这是个图片](image/镜像构建及推送.png)
 
 #### 步骤3：服务部署与暴露
 ```
@@ -193,11 +193,11 @@ read -p "输入TCR仓库URL（TCR_REGISTRY_URL）: " TCR_REGISTRY_URL
 4层服务地址: http://1.13.10.227:8080
 7层服务地址: http://1.13.117.179
 ```
-![这是个图片](images/服务部署与暴露.png)
+![这是个图片](image/服务部署与暴露.png)
 - 4层访问验证​：访问http://1.13.10.227:8080， 成功访问部署在TKE集群上的Spring PetClinic应用，浏览器完整显示应用首页
-![这是个图片](images/四层访问.png)
+![这是个图片](image/四层访问.png)
 - 7层访问验证​：访问http://1.13.117.179， 成功访问部署在TKE集群上的Spring PetClinic应用，浏览器完整显示应用首页
-![这是个图片](images/七层访问.png)
+![这是个图片](image/七层访问.png)
 #### 步骤4：日志采集
 ```
 # 启动日志采集配置
@@ -210,7 +210,7 @@ read -p "输入TCR仓库URL（TCR_REGISTRY_URL）: " TCR_REGISTRY_URL
 日志规则1: petclinic-log-stdout (容器标准输出)
 日志规则2: petclinic-log-files (容器文件路径)
 ```
-![这是个图片](images/日志采集.png)
+![这是个图片](image/日志采集.png)
 
 - 在腾讯云控制台中可以查看到两条日志采集规则配置：
 |规则名称|类型|提取模式
@@ -218,7 +218,7 @@ read -p "输入TCR仓库URL（TCR_REGISTRY_URL）: " TCR_REGISTRY_URL
 |`petclinic-log-stdout`|容器标准输出|单行文本|
 |`petclinic-log-files`|容器文件路径|单行-完全正则
 
-![这是个图片](images/文件日志采集.png)
+![这是个图片](image/文件日志采集.png)
 #### 步骤5：弹性伸缩配置
 ```
 # 启动弹性伸缩配置
@@ -231,17 +231,17 @@ read -p "输入TCR仓库URL（TCR_REGISTRY_URL）: " TCR_REGISTRY_URL
 HPA策略：petclinic-hpa (最小3副本，最大20副本)
 HPC策略：petclinic-hpc (3条定时策略)
 ```
-![这是个图片](images/弹性伸缩配置.png)
+![这是个图片](image/弹性伸缩配置.png)
 - HPA 配置状态（在腾讯云控制台可查看验证效果）
   - 触发条件​：CPU利用率达到65%后自动扩缩容
   - 副本范围​：始终保持在3-20个副本之间
-![这是个图片](images/HPA（1）.png)
-![这是个图片](images/HPA（2）.png)
+![这是个图片](image/HPA（1）.png)
+![这是个图片](image/HPA（2）.png)
 - HPC 定时策略（在腾讯云控制台可查看验证效果）
   - 工作日策略​：早8点扩容至10副本，晚18点缩容至3副本
   - 周末策略​：周五23:30缩容至2副本
-![这是个图片](images/HPC（1）.png)
-![这是个图片](images/HPC（2）.png)
+![这是个图片](image/HPC（1）.png)
+![这是个图片](image/HPC（2）.png)
 
 
 

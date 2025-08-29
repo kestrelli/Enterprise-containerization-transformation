@@ -161,7 +161,7 @@ Image Version: v3.5.0
 # Execute service deployment script
 ./services/deploy_services.sh
 ```
--**Expected Output**:
+- **Expected Output**:
 
 ```
 [√] Service deployment complete!
@@ -502,13 +502,13 @@ spec:
     namespace: $K8S_NAMESPACE
   crons:
   - name: morning-scale-up
-    schedule: "2 8 * * 1-5"    # 添加分钟偏移，避免整点高峰冲突
+    schedule: "2 8 * * 1-5"    
     targetSize: 10
   - name: evening-scale-down
-    schedule: "2 18 * * 1-5"   # 添加分钟偏移
+    schedule: "2 18 * * 1-5"   
     targetSize: 3
   - name: weekend-scale-down
-    schedule: "30 23 * * 5"    # 调整为周五晚上11:30，避免周六凌晨处理
+    schedule: "30 23 * * 5"    
     targetSize: 2
 ```
 

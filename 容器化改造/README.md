@@ -347,7 +347,7 @@ variable "subnets" {
   
 ####  3. Layer-4/7 Access
 
-#####**Layer-4 Service**:
+##### **Layer-4 Service**:
 ```
 apiVersion: v1
 kind: Service
